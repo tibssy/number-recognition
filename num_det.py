@@ -1,23 +1,25 @@
 import numpy as np
+import cv2
 import engine
 
 
-def detect(data):
+num = ""
 
-    def normalize(arr):
-        if len(arr.shape) == 1:
-            arr -= np.min(arr)
-            max_val = np.max(arr)
-        else:
-            arr -= np.min(arr, axis=1).reshape(arr.shape[0], 1)
-            max_val = np.max(arr, axis=1).reshape(arr.shape[0], 1)
+img = cv2.imread("test.png")
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+median = cv2.medianBlur(thresh, 5)
+stats = cv2.connectedComponentsWithStats(median, connectivity=8)[2][1:]
+sorted_stats = stats[np.argsort(stats[:, 0])]
 
-        return np.round(arr / max_val * 100).astype(int)
+for i in sorted_stats:
+    x, y, w, h, size = i
+    cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    sgmt = 255 - median[y:y+h, x:x+w]
+    data = engine.detect(sgmt)
+    num += str(data[0])
 
-    model = np.load('data.npy')
-
-    one = engine.resize_image(data)
-    num = engine.slice_number(one)
-
-    diff = np.sum(np.abs(normalize(model[:, 1:]) - normalize(num)), axis=1)
-    return np.array([model[np.argmin(diff), 0].astype(int), np.min(diff), np.round(100 - (np.min(diff) / np.max(diff) * 100)).astype(int)])
+print("The number is:", num)
+cv2.imshow("image", img)
+cv2.waitKey()
+cv2.destroyAllWindows()

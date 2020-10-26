@@ -4,6 +4,7 @@ import engine
 
 
 num = ""
+accuracy = ""
 
 img = cv2.imread("test.png")
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -17,9 +18,12 @@ for i in sorted_stats:
     cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
     sgmt = 255 - median[y:y+h, x:x+w]
     data = engine.detect(sgmt)
+    print(data)
     num += str(data[0])
+    acc = str(data[2])
+    accuracy += acc + " "
 
-print("The number is:", num)
+print("The number is:", num, "\naccuracy: ", accuracy, "%")
 cv2.imshow("image", img)
 cv2.waitKey()
 cv2.destroyAllWindows()

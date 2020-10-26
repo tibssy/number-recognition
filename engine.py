@@ -63,5 +63,5 @@ def detect(data):
     one = resize_image(data)
     num = slice_number(one)
 
-    diff = np.sum(np.abs(normalize(model[:, 1:]) - normalize(num)), axis=1)
-    return np.array([model[np.argmin(diff), 0].astype(int), np.min(diff), np.round(100 - (np.min(diff) / np.max(diff) * 100)).astype(int)])
+    diff = np.sum(np.abs(normalize(model[:, 1:].astype(int)) - normalize(num)), axis=1)
+    return np.array([model[np.argmin(diff), 0], np.min(diff), np.round(100 - (np.min(diff) / np.max(diff) * 100)).astype(int)])

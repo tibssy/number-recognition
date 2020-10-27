@@ -19,8 +19,15 @@ def zoom(frame):
 
 def prepare_frame(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    thresh = cv2.threshold(
+        gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     return cv2.medianBlur(thresh, 5)
+
+
+def auto_inv(median):
+    if np.round(100 - np.sum(median / 255) / (median.shape[0] * median.shape[1]) * 100).astype(int) < 50:
+        return 255 - median
+    return median
 
 
 cap = cv2.VideoCapture(0)
@@ -35,6 +42,7 @@ while(True):
     ret, frame = cap.read()
     frame = zoom(frame)
     median = prepare_frame(frame)
+    median = auto_inv(median)
 
     stats = cv2.connectedComponentsWithStats(median, connectivity=8)[2][1:]
 
@@ -54,6 +62,7 @@ while(True):
 
  #   print(filtered)
 
+    cv2.imshow('median', median)
     cv2.imshow('frame', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

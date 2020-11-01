@@ -11,9 +11,6 @@ def filter(stats, resolution):
     def size_filter(stats):
         return stats[np.abs(stats[:, 3] - np.max(stats[:, 3])) < frame_limit]
 
-    def sort_L2R(stats):
-        return stats[np.argsort(stats[:, 0])]
-
     def filter_left(stats):
         return np.min(stats[:, 0])
 

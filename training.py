@@ -1,7 +1,7 @@
 import numpy as np
 import fnmatch
 import os
-import engine
+import onr
 
 
 file_out_name = "data.npy"
@@ -14,14 +14,15 @@ for folder in folders:
     images = fnmatch.filter(os.listdir(path + "/" + folder), '*.png')
 
     for image in images:
-        roi = engine.prepare_image(path + "/" + folder + "/" + image)
-        one = engine.resize_image(roi)
-        num = engine.slice_number(one).astype(str)
+        roi = onr.prepare_image(path + "/" + folder + "/" + image)
+        one = onr.resize_image(roi)
+        num = onr.slice_number(one).astype(str)
 
         result = np.insert(num, 0, folder)
         output_arr = np.append(output_arr, result)
 
 out = output_arr.reshape(-1, result.shape[0])
 out = np.where(out == "dot", ".", out)
+out = np.where(out == "sign", "", out)
 print("data:\n", out)
 np.save(file_out_name, out)

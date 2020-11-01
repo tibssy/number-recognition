@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 grid_x = 3
-grid_y = 3
+grid_y = 5
 
 
 def threshold_image(gray):
@@ -16,6 +16,12 @@ def prepare_image(file):
     stats = stats[1]
     x, y, w, h = stats[:4]
     return img[y:y+h, x:x+w]
+
+
+def auto_inv(median):
+    if np.round(100 - np.sum(median / 255) / (median.shape[0] * median.shape[1]) * 100).astype(int) < 50:
+        return 255 - median
+    return median
 
 
 def resize_image(roi):
@@ -63,5 +69,9 @@ def detect(data):
     one = resize_image(data)
     num = slice_number(one)
 
-    diff = np.sum(np.abs(normalize(model[:, 1:].astype(int)) - normalize(num)), axis=1)
-    return np.array([model[np.argmin(diff), 0], np.min(diff), np.round(100 - (np.min(diff) / np.max(diff) * 100)).astype(int)])
+    diff = np.sum(
+        np.abs(normalize(model[:, 1:].astype(int)) - normalize(num)), axis=1)
+
+    acc = np.round(100 - (np.min(diff) / np.max(diff) * 100)).astype(int)
+
+    return np.array([model[np.argmin(diff), 0], acc])
